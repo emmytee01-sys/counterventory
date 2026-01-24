@@ -55,6 +55,8 @@ JWT_SECRET=counterventory-production-secret-key-2024-change-this
 JWT_EXPIRE=7d
 
 PORT=3000
+
+SETUP_SECRET=my-secret-seed-key-12345
 ```
 
 ⚠️ **IMPORTANT**: Change `JWT_SECRET` to a strong random string for production!
@@ -114,7 +116,42 @@ Should return a JWT token!
 
 After first deployment, seed the database:
 
-### Option A: Using Render Shell
+### Option A: Using API Endpoint (FREE TIER - RECOMMENDED) ✅
+
+**Perfect for Render Free Plan!** Just visit a URL in your browser:
+
+1. Wait for deployment to complete (check **"Live"** status)
+2. Open your browser and visit:
+```
+https://counterventory-backend.onrender.com/api/setup/seed?secret=my-secret-seed-key-12345
+```
+
+Replace `my-secret-seed-key-12345` with whatever you set as `SETUP_SECRET`.
+
+**✅ Success Response:**
+```json
+{
+  "success": true,
+  "message": "Database seeded successfully!",
+  "data": {
+    "users": 3,
+    "products": 10,
+    "credentials": {
+      "admin": "admin / admin123",
+      "user1": "john / password123",
+      "user2": "jane / password123"
+    }
+  }
+}
+```
+
+**⚠️ Security Notes:**
+- This endpoint can only be used ONCE
+- After seeding, it will reject further attempts
+- Requires the secret key you set in environment variables
+- Can only seed an empty database
+
+### Option B: Using Render Shell (PAID PLANS ONLY)
 
 1. Go to Render Dashboard → Your Service
 2. Click **"Shell"** tab
@@ -122,10 +159,6 @@ After first deployment, seed the database:
 ```bash
 node scripts/seedDataFromCSV.js
 ```
-
-### Option B: Using API Endpoint (Recommended)
-
-Create a one-time admin endpoint or run locally pointing to production MongoDB.
 
 ---
 
