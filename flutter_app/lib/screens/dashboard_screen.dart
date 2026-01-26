@@ -170,9 +170,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 ),
                 const SizedBox(height: 12),
                 _ActionCard(
-                  icon: Icons.qr_code_scanner,
+                  icon: Icons.barcode_reader,
                   title: 'Start Counting',
-                  subtitle: 'Scan QR codes to count products',
+                  subtitle: 'Scan barcodes to count products',
                   color: AppColors.primaryBlue,
                   onTap: () {
                     Navigator.push(

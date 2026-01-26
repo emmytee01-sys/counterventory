@@ -91,9 +91,9 @@ exports.exportUserInventory = async (req, res) => {
     const lastRow = worksheet.lastRow.number + 2;
     worksheet.getCell(`K${lastRow}`).value = 'TOTALS:';
     worksheet.getCell(`K${lastRow}`).font = { bold: true };
-    
+
     const totalQty = inventory.reduce((sum, item) => sum + item.quantity, 0);
-    
+
     worksheet.getCell(`L${lastRow}`).value = totalQty;
     worksheet.getCell(`L${lastRow}`).font = { bold: true };
 
@@ -203,9 +203,9 @@ exports.exportAllInventory = async (req, res) => {
     const lastRow = worksheet.lastRow.number + 2;
     worksheet.getCell(`K${lastRow}`).value = 'TOTALS:';
     worksheet.getCell(`K${lastRow}`).font = { bold: true };
-    
+
     const totalQty = inventory.reduce((sum, item) => sum + item.quantity, 0);
-    
+
     worksheet.getCell(`L${lastRow}`).value = totalQty;
     worksheet.getCell(`L${lastRow}`).font = { bold: true };
 
@@ -270,6 +270,102 @@ exports.getAllUsers = async (req, res) => {
       success: true,
       count: usersWithStats.length,
       data: usersWithStats
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Server error',
+      error: error.message
+    });
+  }
+};
+
+// @desc    Create a new user
+// @route   POST /api/admin/users
+// @access  Private/Admin
+exports.createUser = async (req, res) => {
+  try {
+    const { username, password, role } = req.body;
+
+    // Check if user exists
+    const userExists = await User.findOne({ username });
+    if (userExists) {
+      return res.status(400).json({
+        success: false,
+        message: 'User already exists'
+      });
+    }
+
+    // Create user - hashing handled by model middleware
+    const user = await User.create({
+      username,
+      password,
+      role: role || 'staff'
+    });
+
+    res.status(201).json({
+      success: true,
+      data: {
+        id: user._id,
+        username: user.username,
+        role: user.role
+      }
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Server error',
+      error: error.message
+    });
+  }
+};
+
+// @desc    Download sample product import file
+// @route   GET /api/admin/sample
+// @access  Private/Admin
+exports.getSampleFile = async (req, res) => {
+  try {
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet('Sample Import');
+
+    // Add headers based on Product model
+    worksheet.columns = [
+      { header: 'productSKU', key: 'productSKU', width: 15 },
+      { header: 'itemName', key: 'itemName', width: 30 },
+      { header: 'deptName', key: 'deptName', width: 20 },
+      { header: 'itemDetailedSpecs', key: 'itemDetailedSpecs', width: 30 },
+      { header: 'sellingPrice', key: 'sellingPrice', width: 15 },
+      { header: 'costPrice', key: 'costPrice', width: 15 },
+      { header: 'currentStock', key: 'currentStock', width: 15 },
+      { header: 'upcBarcode', key: 'upcBarcode', width: 20 },
+      { header: 'recordUID', key: 'recordUID', width: 15 }
+    ];
+
+    // Add some sample data
+    worksheet.addRow({
+      productSKU: 'SKU123',
+      itemName: 'Sample Product',
+      deptName: 'GROCERY',
+      itemDetailedSpecs: '500g Pack',
+      sellingPrice: 10.99,
+      costPrice: 8.50,
+      currentStock: 100,
+      upcBarcode: '123456789012',
+      recordUID: 'UID001'
+    });
+
+    const filename = 'sample_import.xlsx';
+    const filepath = path.join(__dirname, '../exports', filename);
+
+    const exportsDir = path.join(__dirname, '../exports');
+    if (!fs.existsSync(exportsDir)) {
+      fs.mkdirSync(exportsDir, { recursive: true });
+    }
+
+    await workbook.xlsx.writeFile(filepath);
+
+    res.download(filepath, filename, (err) => {
+      if (!err) fs.unlinkSync(filepath);
     });
   } catch (error) {
     res.status(500).json({
