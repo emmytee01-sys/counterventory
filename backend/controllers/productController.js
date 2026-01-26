@@ -105,7 +105,7 @@ exports.importProducts = async (req, res) => {
       try {
         // Check if product exists
         const existing = await Product.findOne({ productSKU: productData.productSKU });
-        
+
         if (existing) {
           // Update existing product
           Object.assign(existing, productData);
@@ -129,6 +129,26 @@ exports.importProducts = async (req, res) => {
       success: true,
       message: `Imported ${results.success} products, ${results.failed} failed`,
       data: results
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Server error',
+      error: error.message
+    });
+  }
+};
+
+// @desc    Clear all products
+// @route   DELETE /api/products/clear
+// @access  Private/Admin
+exports.clearProducts = async (req, res) => {
+  try {
+    await Product.deleteMany({});
+
+    res.status(200).json({
+      success: true,
+      message: 'All products have been cleared'
     });
   } catch (error) {
     res.status(500).json({

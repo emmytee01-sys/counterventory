@@ -11,14 +11,14 @@ class ProductProvider extends ChangeNotifier {
   bool get isLoading => _isLoading;
   String? get error => _error;
 
-  Future<ProductModel?> fetchProductByQR(String qrCode) async {
+  Future<ProductModel?> fetchProductByBarcode(String barcode) async {
     _isLoading = true;
     _error = null;
     _currentProduct = null;
     notifyListeners();
 
     try {
-      final response = await ApiService.getProductByQR(qrCode);
+      final response = await ApiService.getProductByBarcode(barcode);
 
       if (response['success'] == true) {
         _currentProduct = ProductModel.fromJson(response['data']);

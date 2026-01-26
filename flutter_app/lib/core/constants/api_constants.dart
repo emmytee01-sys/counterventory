@@ -23,7 +23,7 @@ class ApiConstants {
   
   // Product endpoints
   static const String products = '/products';
-  static String productByQR(String qrCode) => '/products/qr/$qrCode';
+  static String productByBarcode(String barcode) => '/products/qr/$barcode';
   
   // Count endpoints
   static const String tempCounts = '/counts/temp';
@@ -36,5 +36,9 @@ class ApiConstants {
   static const String adminUsers = '/admin/users';
   static String exportUser(String userId) => '/admin/export/user/$userId';
   static const String exportAll = '/admin/export/all';
+  static const String importProducts = '/products/import';
+  static const String clearProducts = '/products/clear';
+  static const String createUser = '/admin/users';
+  static const String sampleImportFile = '/admin/sample';
 }
 
